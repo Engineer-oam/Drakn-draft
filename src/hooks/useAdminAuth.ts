@@ -38,8 +38,13 @@ export function useAdminAuth() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Authentication failed:", error);
+      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.message?.toLowerCase().includes('cross-origin')) {
+        alert("Authentication failed. This often happens inside the preview iframe. Please open the app in a new tab (using the ↗️ icon) and try again.");
+      } else {
+        alert("Authentication failed: " + error.message);
+      }
       throw error;
     }
   };

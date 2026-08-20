@@ -19,8 +19,13 @@ export function useAuth() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error signing in with Google", error);
+      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.message?.toLowerCase().includes('cross-origin')) {
+        alert("Authentication failed. This often happens inside the preview iframe. Please open the app in a new tab (using the ↗️ icon) and try again.");
+      } else {
+        alert("Authentication failed: " + error.message);
+      }
     }
   };
 
