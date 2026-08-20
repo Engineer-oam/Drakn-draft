@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --color-drakn-base: #030303;
+  --color-drakn-dark: #0a0a0a;
+  --color-drakn-charcoal: #141414;
+  --color-drakn-graphite: #242424;
+  --color-drakn-light: #f4f4f0;
+  --color-drakn-muted: #8a8a8a;
+  
+  --font-display: "Syncopate", sans-serif;
+  --font-body: "Manrope", sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-drakn-base);
+    color: var(--color-drakn-light);
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Hide default cursor on devices with a fine pointer (mouse) */
+@media (pointer: fine) {
+  body.custom-cursor-enabled,
+  body.custom-cursor-enabled * {
+    cursor: none !important;
+  }
+}

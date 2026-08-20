@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- HELPER FUNCTIONS ---
+    function isSignedIn() { 
+      return request.auth != null; 
+    }
+    
+    function isOwner(userId) { 
+      return isSignedIn() && request.auth.uid == userId; 
+    }
+    
+    // Admin check looks up the /admins collection OR matches runtime owner email.
+    function isAdmin() { 
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == "info.ompandey@gmail.com"
+      ); 
+    }
+    
+    // --- GLOBAL SAFETY NET ---
+    match /{document=**} { 
+      allow read, write: if false; 
+    }
+
+    // --- PUBLIC CATALOG (READ) / ADMIN (WRITE) ---
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+      
+      match /variants/{variantId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+      match /images/{imageId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+    
+    match /categories/{categoryId} { 
+      allow read: if true; 
+      allow write: if isAdmin(); 
+    }
+    
+    match /collections/{collectionId} { 
+      allow read: if true; 
+      allow write: if isAdmin(); 
+    }
+    
+    match /homepageSections/{sectionId} { 
+      allow read: if true; 
+      allow write: if isAdmin(); 
+    }
+
+    match /skus/{skuId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /reviews/{reviewId} { 
+      allow read: if true; 
+      // Users can write their own reviews; Admins can manage all
+      allow write: if isAdmin() || (isSignedIn() && request.resource.data.userId == request.auth.uid); 
+    }
+
+    // --- ADMIN STRICT ZONE ---
+    match /admins/{adminId} { 
+      allow read, write: if isAdmin(); 
+    }
+    match /roles/{roleId} { 
+      allow read, write: if isAdmin(); 
+    }
+    match /permissions/{permissionId} { 
+      allow read, write: if isAdmin(); 
+    }
+    match /inventory/{variantId} { 
+      allow read, write: if isAdmin(); 
+      match /transactions/{txId} {
+        allow read, write: if isAdmin();
+      }
+    }
+    match /coupons/{couponId} { 
+      allow read, write: if isAdmin(); 
+      match /usage/{usageId} {
+        allow read, write: if isAdmin();
+      }
+    }
+    match /auditLogs/{logId} { 
+      allow read, write: if isAdmin(); 
+    }
+
+    // --- USER OWNED (Read & Permitted Writes) ---
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    match /carts/{cartId} {
+      // Cart logic - assuming cart ID is user ID for authenticated users, 
+      // or session ID for guests (which requires more complex logic, but we restrict to owners here).
+      allow read, write: if isOwner(cartId) || isAdmin();
+      match /items/{itemId} {
+        allow read, write: if isOwner(cartId) || isAdmin();
+      }
+    }
+
+    match /wishlists/{wishlistId} {
+      allow read, write: if isOwner(wishlistId) || isAdmin();
+      match /items/{itemId} {
+        allow read, write: if isOwner(wishlistId) || isAdmin();
+      }
+    }
+
+    // --- BACKEND-ONLY WRITES (Transactions Enforced) ---
+    // Users can view their orders, but ONLY the Admin SDK (our Express Server) can write to them.
+    // This strictly enforces database transactions for checkout and inventory decrement.
+    match /orders/{orderId} {
+      // Owner can read if their UID matches the userId field
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false; // strictly backend Server SDK
+      
+      match /items/{itemId} {
+        allow read: if isAdmin() || (isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid);
+        allow write: if false; 
+      }
+      match /payments/{paymentId} {
+        allow read: if isAdmin() || (isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid);
+        allow write: if false; 
+      }
+      match /shipments/{shipmentId} {
+        allow read: if isAdmin() || (isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid);
+        allow write: if false; 
+      }
+    }
+  }
+}
