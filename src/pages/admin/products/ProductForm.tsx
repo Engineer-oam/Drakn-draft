@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { doc, getDoc, writeBatch, collection, getDocs, query, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../../lib/firebase';
@@ -37,7 +37,10 @@ export function ProductForm() {
   const [error, setError] = useState('');
 
   // Form State
-  const [basic, setBasic] = useState({
+  const [basic, setBasic] = useState<{
+    name: string; description: string; categoryId: string; collectionId: string; status: string;
+    isPrivate?: boolean; privateType?: string; editionStatus?: string;
+  }>({
     name: '', description: '', categoryId: '', collectionId: '', status: 'draft'
   });
   const [fashion, setFashion] = useState({

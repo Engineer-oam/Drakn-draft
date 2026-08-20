@@ -118,7 +118,7 @@ function PrivateRequestsTab() {
       try {
         const q = query(collection(db, 'private_requests'));
         const snap = await getDocs(q);
-        const reqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const reqs = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
         reqs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
         setRequests(reqs);
       } catch (err) {

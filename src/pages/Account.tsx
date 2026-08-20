@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCustomer, Order } from '../hooks/useCustomer';
 import { PageTransition } from '../components/PageTransition';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 export function Account() {
   const { user, signOut } = useAuth();

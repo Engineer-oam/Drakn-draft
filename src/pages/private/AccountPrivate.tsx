@@ -24,7 +24,7 @@ export function AccountPrivate() {
         );
         const snap = await getDocs(q);
         // Note: orderBy might require an index, sorting client side for simplicity if no index exists
-        const reqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const reqs = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
         reqs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
         setRequests(reqs);
       } catch (err) {

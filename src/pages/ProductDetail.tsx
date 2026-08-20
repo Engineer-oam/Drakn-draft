@@ -43,7 +43,7 @@ export function ProductDetail() {
         setProduct({ id: pDoc.id, ...pDoc.data() });
 
         const vSnap = await getDocs(collection(db, 'products', id, 'variants'));
-        const activeVariants = vSnap.docs.map(v => ({ id: v.id, ...v.data() })).filter((v:any) => v.isActive);
+        const activeVariants: any[] = vSnap.docs.map(v => ({ id: v.id, ...v.data() })).filter((v:any) => v.isActive);
         setVariants(activeVariants);
 
         const iSnap = await getDocs(query(collection(db, 'products', id, 'images'), orderBy('order')));

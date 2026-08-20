@@ -40,7 +40,7 @@ export function useCatalog() {
           const pId = pDoc.id;
           
           const vSnap = await getDocs(collection(db, 'products', pId, 'variants'));
-          const variants = vSnap.docs.map(v => ({ id: v.id, ...v.data() })).filter((v:any) => v.isActive);
+          const variants = vSnap.docs.map(v => ({ id: v.id, ...v.data() } as any)).filter((v:any) => v.isActive);
           
           const iSnap = await getDocs(query(collection(db, 'products', pId, 'images'), orderBy('order')));
           const images = iSnap.docs.map(i => ({ id: i.id, ...i.data() }));
