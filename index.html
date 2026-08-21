@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0F0F0F" />
     <title>DRAKN | Premium Menswear</title>
-    <meta name="description" content="DRAKN - Premium contemporary menswear. A piece of digital art built around men's fashion." />
-    <meta property="og:title" content="DRAKN | Premium Menswear" />
-    <meta property="og:description" content="DRAKN - Premium contemporary menswear. A piece of digital art built around men's fashion." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
     
     <!-- Resource Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +20,27 @@
   </head>
   <body class="bg-drakn-base text-drakn-light antialiased selection:bg-drakn-light selection:text-drakn-base">
     <div id="root"></div>
+    <script>
+      window.addEventListener("error", function(e) {
+        if (e.target && e.target.src) {
+           const div = document.createElement("div");
+           div.style.cssText = "color:yellow;position:fixed;z-index:9999;top:0;left:0;background:black;padding:20px;";
+           div.innerText = "Failed to load resource: " + e.target.src;
+           document.body.appendChild(div);
+        } else {
+           const div = document.createElement("div");
+           div.style.cssText = "color:red;position:fixed;z-index:9999;top:50px;left:0;background:black;padding:20px;";
+           div.innerText = e.message || "Unknown error";
+           document.body.appendChild(div);
+        }
+      }, true);
+      window.addEventListener("unhandledrejection", function(e) {
+        const div = document.createElement("div");
+        div.style.cssText = "color:orange;position:fixed;z-index:9999;top:100px;left:0;background:black;padding:20px;";
+        div.innerText = e.reason?.message || e.reason || "Unhandled Rejection";
+        document.body.appendChild(div);
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

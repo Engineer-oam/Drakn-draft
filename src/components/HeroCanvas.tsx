@@ -27,6 +27,7 @@ class ErrorBoundary extends Component<{ children: ReactNode, fallback?: ReactNod
 
 export function HeroCanvas() {
   const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const [canvasSupported, setCanvasSupported] = useState(true);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -37,7 +38,19 @@ export function HeroCanvas() {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  if (isReducedMotion) {
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        setCanvasSupported(false);
+      }
+    } catch (e) {
+      setCanvasSupported(false);
+    }
+  }, []);
+
+  if (isReducedMotion || !canvasSupported) {
     return null;
   }
 
